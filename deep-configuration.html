@@ -1,15 +1,14 @@
 <link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
 
 <dom-module id="deep-configuration">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]!</h2>
-  </template>
-
+  <!-- TODO Handle additional config file types -->
+  <iron-ajax
+    auto
+    url="[[filePath]]"
+    handle-as="json"
+    on-response="__handleConfigFile"
+  ></iron-ajax>
   <script>
     /**
      * `deep-configuration`
@@ -23,11 +22,17 @@
       static get is() { return 'deep-configuration'; }
       static get properties() {
         return {
-          prop1: {
+          /* Path to the configuration file */
+          filePath: {
             type: String,
-            value: 'deep-configuration'
+            value: './config.json'
           }
         };
+      }
+      __handleConfigFile(request) {
+        const {response} = request;
+        if (!response) return {};
+        debugger;
       }
     }
 
