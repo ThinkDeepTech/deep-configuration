@@ -1,14 +1,15 @@
-<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../deep-hybrid-behavior/deep-hybrid-behavior.html">
 
 <dom-module id="deep-configuration">
-  <!-- TODO Handle additional config file types -->
-  <iron-ajax
-    auto
-    url="[[filePath]]"
-    handle-as="json"
-    on-response="__handleConfigFile"
-  ></iron-ajax>
+  <template>
+    <!-- TODO Handle additional config file types -->
+    <iron-ajax
+      url="[[filePath]]"
+      handle-as="json"
+    ></iron-ajax>
+  </template>
   <script>
     /**
      * `deep-configuration`
@@ -18,24 +19,38 @@
      * @polymer
      * @demo demo/index.html
      */
-    class DeepConfiguration extends Polymer.Element {
-      static get is() { return 'deep-configuration'; }
-      static get properties() {
-        return {
-          /* Path to the configuration file */
-          filePath: {
-            type: String,
-            value: './config.json'
-          }
-        };
-      }
-      __handleConfigFile(request) {
-        const {response} = request;
-        if (!response) return {};
-        debugger;
-      }
-    }
+     Polymer({
+       is: 'deep-configuration',
+       behaviors: [
+         deep.HybridBehavior
+       ],
+       properties: {
+         /* Path to the configuration file */
+         filePath: {
+           type: String,
+           value: './config.json'
+         },
 
-    window.customElements.define(DeepConfiguration.is, DeepConfiguration);
+         /* Public hook into configurations */
+         configurations: {
+           type: Object,
+           value() {
+             return {};
+           },
+           notify: true
+         }
+       },
+       attached() {
+         const ajax = this.querySelector('iron-ajax');
+         let configurations = {};
+         ajax.generateRequest().completes.then(({response}) => {
+           if (response) configurations = response;
+         }, () => {
+           console.error(`${this.localName}: fetching configuration file at path '${this.filePath}' failed. Configurations will be empty.`);
+         }).then(() => {
+           this.set('configurations', configurations);
+         });
+       }
+     });
   </script>
 </dom-module>
