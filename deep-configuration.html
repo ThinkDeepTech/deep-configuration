@@ -52,32 +52,30 @@
        },
        attached() {
          let configurations = {};
-         this.readConfig().then(() => {
+         this.read().then(() => {
            this.set('complete', true);
          });
        },
-       // TODO Add support for file types other than json.
        /**
         * Read in configuration file.
         * @param {String} [filePath = this.filePath] - Path to the file to read.
-        * @param {Function} onSuccess - What should be done on success of file read.
-        * @param {Function} onError - What should be done of failure of file read.
         * @return {Promise} - Resolves when file processing completes. Resolves with
         * the configurations or a default.
         */
-        readConfig(filePath = this.filePath, onSuccess = ({response}) => {
-          if (!response) this.set('configurations', {});
-          this.set('configurations', response);
-          return this.get('configurations');
-        }, onError = () => {
-          console.error(`${this.localName}: fetching configuration file at path '${this.filePath}'
-            failed. Configurations will be empty.`);
-          this.set('configurations', {});
-          return this.get('configurations');
-        }) {
+        read(filePath = this.filePath) {
+          let configurations = {};
           const ajax = this.querySelector('iron-ajax');
           ajax.url = filePath;
-          return ajax.generateRequest().completes.then(onSuccess, onError);
+          return ajax.generateRequest().completes.then(({response}) => {
+            if (!response) this.set('configurations', {});
+            this.set('configurations', response);
+          }, () => {
+            console.error(`${this.localName}: fetching configuration file at path
+              '${this.filePath}' failed. Configurations will be empty.`);
+            this.set('configurations', {});
+          }).then(() => {
+            return this.get('configurations');
+          });
         },
      });
   </script>
