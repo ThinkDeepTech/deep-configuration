@@ -67,8 +67,8 @@
           const ajax = this.querySelector('iron-ajax');
           ajax.url = filePath;
           return ajax.generateRequest().completes.then(({response}) => {
-            if (!response) this.set('configurations', {});
-            this.set('configurations', response);
+            const config = response ? response : {};
+            this.set('configurations', config);
           }, () => {
             console.error(`${this.localName}: fetching configuration file at path
               '${this.filePath}' failed. Configurations will be empty.`);
