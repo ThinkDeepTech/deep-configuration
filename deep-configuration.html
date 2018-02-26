@@ -2,9 +2,14 @@
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../deep-hybrid-behavior/deep-hybrid-behavior.html">
 
+<!-- TODO: Handle additional config file types -->
+<!--
+  TODO: How to handle filtering config data. I.e, polymer equivalent to nodejs
+  const { host } = require('configuration.json');
+ -->
+
 <dom-module id="deep-configuration">
   <template>
-    <!-- TODO Handle additional config file types -->
     <iron-ajax
       url="[[filePath]]"
       handle-as="json"
@@ -30,7 +35,6 @@
            type: String,
            value: './config.json'
          },
-
          /* Public hook into configurations */
          configurations: {
            type: Object,
@@ -38,17 +42,24 @@
              return {};
            },
            notify: true
+         },
+         /* Indicates when configuration has completed. True means complete. False otherwise. */
+         complete: {
+           type: Boolean,
+           value: false,
+           notify: true
          }
        },
        attached() {
-         const ajax = this.querySelector('iron-ajax');
          let configurations = {};
-         ajax.generateRequest().completes.then(({response}) => {
+         this.querySelector('iron-ajax').generateRequest().completes.then(({response}) => {
            if (response) configurations = response;
          }, () => {
            console.error(`${this.localName}: fetching configuration file at path '${this.filePath}' failed. Configurations will be empty.`);
          }).then(() => {
            this.set('configurations', configurations);
+         }).then(() => {
+           this.set('complete', true);
          });
        }
      });
