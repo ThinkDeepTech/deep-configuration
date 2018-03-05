@@ -43,8 +43,8 @@
            },
            notify: true
          },
-         /* Indicates when configuration has completed. True means complete. False otherwise. */
-         complete: {
+         /* Indicates when configuration has finished. True means complete. False otherwise. */
+         done: {
            type: Boolean,
            value: false,
            notify: true
@@ -53,7 +53,7 @@
        attached() {
          let configurations = {};
          this.read().then(() => {
-           this.set('complete', true);
+           this.set('done', true);
          });
        },
        /**
